@@ -40,7 +40,7 @@ class CSRF
 	 * $fatal === true (see csrf_check). This will usually output an error message
 	 * about the failure.
 	 */
-	public static $callback = 'CSRF::callback'; //'csrf_callback'
+	public static $callback = 'CsrfMagic\CSRF::callback'; //'csrf_callback'
 
 	/**
 	 * Whether or not to include our JavaScript library which also rewrites

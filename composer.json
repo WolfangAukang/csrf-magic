@@ -7,7 +7,7 @@
 	"php"
   ],
   "homepage": "https://github.com/YetiForceCompany/csrf-magic",
-  "type": "composer-plugin",
+  "type": "library",
   "license": "BSD-2-Clause",
   "authors": [
 	{

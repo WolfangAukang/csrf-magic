@@ -134,7 +134,7 @@ class CSRF
 	/**
 	 * Don't edit this!
 	 */
-	public static $version = '1.0.4';
+	public static $version = '1.0.5';
 
 	/**
 	 * Even though the user told us to rewrite, we should do a quick heuristic

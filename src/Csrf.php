@@ -14,7 +14,7 @@ namespace CsrfMagic;
  *
  * This library is PHP4 and PHP5 compatible.
  */
-class CSRF
+class Csrf
 {
 	/**
 	 * By default, when you include this file csrf-magic will automatically check
@@ -40,7 +40,7 @@ class CSRF
 	 * $fatal === true (see csrf_check). This will usually output an error message
 	 * about the failure.
 	 */
-	public static $callback = 'CsrfMagic\CSRF::callback'; //'csrf_callback'
+	public static $callback = 'CsrfMagic\Csrf::callback'; //'csrf_callback'
 
 	/**
 	 * Whether or not to include our JavaScript library which also rewrites
@@ -48,7 +48,7 @@ class CSRF
 	 * with supported JavaScript libraries in Internet Explorer; see README.txt for
 	 * a list of supported libraries.
 	 */
-	public static $rewriteJs = 'csrf-magic/csrf-magic.js';
+	public static $rewriteJs = 'vendor/yetiforce/csrf-magic/src/Csrf.js';
 
 	/**
 	 * A secret key used when hashing items. Please generate a random string and
@@ -134,7 +134,7 @@ class CSRF
 	/**
 	 * Don't edit this!
 	 */
-	public static $version = '1.0.5';
+	public static $version = '1.0.6';
 
 	/**
 	 * Even though the user told us to rewrite, we should do a quick heuristic
@@ -497,5 +497,3 @@ class CSRF
 		}
 	}
 }
-
-CSRF::init();

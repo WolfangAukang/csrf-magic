@@ -57,18 +57,18 @@ not enabled by default.  You can enable it by adding this code before you
 include csrf-magic.php.
 
     function csrf_startup() {
-        csrf_conf('rewrite-js', '/web/path/to/csrf-magic.js');
+        csrf_conf('rewrite-js', '/web/path/to/Csrf.js');
     }
     // include_once '/path/to/csrf-magic.php';
 
-(Be sure to place csrf-magic.js somewhere web accessible).
+(Be sure to place Csrf.js somewhere web accessible).
 
 The default method CSRF Magic uses to rewrite AJAX requests will
 only work for browsers with support for XmlHttpRequest.prototype (this excludes
 all versions of Internet Explorer).  See this page for more information:
 http://stackoverflow.com/questions/664315/internet-explorer-8-prototypes-and-xmlhttprequest
 
-However, csrf-magic.js will
+However, Csrf.js will
 automatically detect and play nice with the following JavaScript frameworks:
 
     * jQuery
@@ -82,7 +82,7 @@ been updated, and some JavaScript libraries have placed their copies of XHR
 in local variables in closures, which makes it difficult for us to monkey-patch
 it in automatically.)
 
-To rewrite your own JavaScript library to use csrf-magic.js, you should modify
+To rewrite your own JavaScript library to use Csrf.js, you should modify
 your function that generates XMLHttpRequest to have this at the end:
 
     return new CsrfMagic(xhrObject);
@@ -131,7 +131,7 @@ For example, this is a recommended configuration:
 
         // This enables JavaScript rewriting and will ensure your AJAX calls
         // don't stop working.
-        csrf_conf('rewrite-js', '/csrf-magic.js');
+        csrf_conf('rewrite-js', '/Csrf.js');
 
         // This makes csrf-magic call my_csrf_callback() before exiting when
         // there is a bad csrf token. This lets me customize the error page.

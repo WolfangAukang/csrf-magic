@@ -1,5 +1,7 @@
 <?php
 
+namespace CsrfMagic;
+
 /**
  * @file
  *
@@ -14,7 +16,6 @@
  */
 class CSRF
 {
-
 	/**
 	 * By default, when you include this file csrf-magic will automatically check
 	 * and exit if the CSRF token is invalid. This will defer executing
@@ -54,7 +55,7 @@ class CSRF
 	 * place it here. If you change this value, all previously generated tokens
 	 * will become invalid.
 	 * nota bene: library code should use csrf_get_secret() and not access
-	 * this global directly
+	 * this global directly.
 	 */
 	public static $secret = '';
 
@@ -108,7 +109,7 @@ class CSRF
 
 	/**
 	 * The name of the magic CSRF token that will be placed in all forms, i.e.
-	 * the contents of <input type="hidden" name="$name" value="CSRF-TOKEN" />
+	 * the contents of <input type="hidden" name="$name" value="CSRF-TOKEN" />.
 	 */
 	public static $inputName = '__vtrftk'; // __csrf_magic
 
@@ -163,7 +164,7 @@ class CSRF
 				foreach ($headers as $header) {
 					if (static::$isHtml) {
 						break;
-					} else if (stripos('Content-type', $header) !== false && stripos('/html', $header) === false) {
+					} elseif (stripos('Content-type', $header) !== false && stripos('/html', $header) === false) {
 						static::$isHtml = false;
 					}
 				}
@@ -199,8 +200,10 @@ class CSRF
 
 	/**
 	 * Checks if this is a post request, and if it is, checks if the nonce is valid.
+	 *
 	 * @param bool $fatal Whether or not to fatally error out if there is a problem.
-	 * @return True if check passes or is not necessary, false if failure.
+	 *
+	 * @return true if check passes or is not necessary, false if failure.
 	 */
 	public static function check($fatal = true)
 	{
@@ -251,18 +254,21 @@ class CSRF
 		static::start();
 
 		// These are "strong" algorithms that don't require per se a secret
-		if (session_id())
+		if (session_id()) {
 			return 'sid:' . static::hash(session_id()) . $ip;
+		}
 		if (static::$cookie) {
 			$val = static::generateSecret();
 			setcookie(static::$cookie, $val);
 			return 'cookie:' . static::hash($val) . $ip;
 		}
-		if (static::$key)
+		if (static::$key) {
 			return 'key:' . static::hash(static::$key) . $ip;
+		}
 		// These further algorithms require a server-side secret
-		if (!$secret)
+		if (!$secret) {
 			return 'invalid';
+		}
 		if (static::$user !== false) {
 			return 'user:' . static::hash(static::$user);
 		}
@@ -283,8 +289,9 @@ class CSRF
 
 	public static function flattenpost2($level, $key, $data)
 	{
-		if (!is_array($data))
-			return array($key => $data);
+		if (!is_array($data)) {
+			return [$key => $data];
+		}
 		$ret = [];
 		foreach ($data as $n => $v) {
 			$nk = $level >= 1 ? $key . "[$n]" : "[$n]";
@@ -302,8 +309,9 @@ class CSRF
 		header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden');
 		$data = '';
 		foreach (static::flattenpost($_POST) as $key => $value) {
-			if ($key == static::$inputName)
+			if ($key == static::$inputName) {
 				continue;
+			}
 			$data .= '<input type="hidden" name="' . htmlspecialchars($key) . '" value="' . htmlspecialchars($value) . '" />';
 		}
 		echo "<html><head><title>CSRF check failed</title></head>
@@ -316,71 +324,87 @@ class CSRF
 
 	/**
 	 * Checks if a composite token is valid. Outward facing code should use this
-	 * instead of csrf_check_token()
+	 * instead of csrf_check_token().
 	 */
 	public static function checkTokens($tokens)
 	{
-		if (is_string($tokens))
+		if (is_string($tokens)) {
 			$tokens = explode(';', $tokens);
+		}
 		foreach ($tokens as $token) {
-			if (static::checkToken($token))
+			if (static::checkToken($token)) {
 				return true;
+			}
 		}
 		return false;
 	}
 
 	/**
 	 * Checks if a token is valid.
+	 *
 	 * @param int $token
-	 * @return boolean
+	 *
+	 * @return bool
 	 */
 	public static function checkToken($token)
 	{
-		if (strpos($token, ':') === false)
+		if (strpos($token, ':') === false) {
 			return false;
+		}
 		list($type, $value) = explode(':', $token, 2);
-		if (strpos($value, ',') === false)
+		if (strpos($value, ',') === false) {
 			return false;
+		}
 		$tokenExplode = explode(',', $token, 2);
 		$time = $tokenExplode[1];
 		if (static::$expires) {
-			if (time() > $time + static::$expires)
+			if (time() > $time + static::$expires) {
 				return false;
+			}
 		}
 		switch ($type) {
 			case 'sid':
 				return $value === static::hash(session_id(), $time);
 			case 'cookie':
 				$n = static::$cookie;
-				if (!$n)
+				if (!$n) {
 					return false;
-				if (!isset($_COOKIE[$n]))
+				}
+				if (!isset($_COOKIE[$n])) {
 					return false;
+				}
 				return $value === static::hash($_COOKIE[$n], $time);
 			case 'key':
-				if (!static::$key)
+				if (!static::$key) {
 					return false;
+				}
 				return $value === static::hash(static::$key, $time);
 			// We could disable these 'weaker' checks if 'key' was set, but
 			// that doesn't make me feel good then about the cookie-based
 			// implementation.
 			case 'user':
-				if (!static::getSecret())
+				if (!static::getSecret()) {
 					return false;
-				if (static::$user === false)
+				}
+				if (static::$user === false) {
 					return false;
+				}
 				return $value === static::hash(static::$user, $time);
 			case 'ip':
-				if (!static::getSecret())
+				if (!static::getSecret()) {
 					return false;
+				}
 				// do not allow IP-based checks if the username is set, or if
 				// the browser sent cookies
-				if (static::$user !== false)
+				if (static::$user !== false) {
 					return false;
-				if (!empty($_COOKIE))
+				}
+				if (!empty($_COOKIE)) {
 					return false;
-				if (!static::$allowIp)
+				}
+				if (!static::$allowIp) {
 					return false;
+				}
 				return $value === static::hash($_SERVER['IP_ADDRESS'], $time);
 		}
 		return false;

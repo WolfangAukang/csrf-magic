@@ -34,6 +34,7 @@ class Csrf
 	public static $expires = 7200;
 	public static $dirSecret = __DIR__;
 	public static $fileNameSecret = 'csrf_secret.php';
+	public static $cspToken = '';
 
 	/**
 	 * Callback function to execute when there's the CSRF check fails and
@@ -180,16 +181,16 @@ class Csrf
 		$input = "<input type='hidden' name='" . static::$inputName . "' value=\"$tokens\"$endSlash>";
 		$buffer = preg_replace('#(<form[^>]*method\s*=\s*["\']post["\'][^>]*>)#i', '$1' . $input, $buffer);
 		if (static::$frameBreaker && !static::$isPartial) {
-			$buffer = preg_replace('/<\/head>/', '<script type="text/javascript" nonce="' . App\Session::get('CSP_TOKEN') . '">if (top != self && top.location.origin + top.location.pathname != self.location.origin + self.location.pathname) {top.location.href = self.location.href;}</script></head>', $buffer, $count);
+			$buffer = preg_replace('/<\/head>/', '<script type="text/javascript" nonce="' . static::$cspToken . '">if (top != self && top.location.origin + top.location.pathname != self.location.origin + self.location.pathname) {top.location.href = self.location.href;}</script></head>', $buffer, $count);
 		}
 		if (($js = static::$rewriteJs) && !static::$isPartial) {
 			$buffer = preg_replace(
-				'/<\/head>/', '<script type="text/javascript" nonce="' . App\Session::get('CSP_TOKEN') . '">' .
+				'/<\/head>/', '<script type="text/javascript" nonce="' . static::$cspToken . '">' .
 				'var csrfMagicToken = "' . $tokens . '";' .
 				'var csrfMagicName = "' . static::$inputName . '";</script>' .
 				'<script src="' . $js . '" type="text/javascript"></script></head>', $buffer, $count
 			);
-			$script = '<script type="text/javascript" nonce="' . App\Session::get('CSP_TOKEN') . '">CsrfMagic.end();</script>';
+			$script = '<script type="text/javascript" nonce="' . static::$cspToken . '">CsrfMagic.end();</script>';
 			$buffer = preg_replace('/<\/body>/', $script . '</body>', $buffer, $count);
 			if (!$count) {
 				$buffer .= $script;
@@ -484,8 +485,8 @@ class Csrf
 	public static function init()
 	{
 		// Load user configuration
-		if (class_exists('CSRFConfig')) {
-			CSRFConfig::startup();
+		if (class_exists('\CSRFConfig')) {
+			\CSRFConfig::startup();
 		}
 		// Initialize our handler
 		if (static::$rewrite) {

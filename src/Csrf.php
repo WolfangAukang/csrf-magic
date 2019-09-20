@@ -80,7 +80,7 @@ class Csrf
 	 * whether or not to allow the request. This is a shortcut implementation
 	 * very similar to 'key', but we randomly set the cookie ourselves.
 	 */
-	public static $cookie = '__vtrfck'; // __csrf_cookie
+	public static $cookie = '__csrf_cookie'; // __csrf_cookie
 
 	/**
 	 * If this information is available, set this to a unique identifier (it
@@ -112,7 +112,7 @@ class Csrf
 	 * The name of the magic CSRF token that will be placed in all forms, i.e.
 	 * the contents of <input type="hidden" name="$name" value="CSRF-TOKEN" />.
 	 */
-	public static $inputName = '__vtrftk'; // __csrf_magic
+	public static $inputName = '_csrf'; // __csrf_magic
 
 	/**
 	 * Set this to false if your site must work inside of frame/iframe elements,

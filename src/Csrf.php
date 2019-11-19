@@ -122,6 +122,13 @@ class Csrf
 	public static $frameBreaker = true;
 
 	/**
+	 * Which window should be verified? It is used to check if the system is loaded in the frame.
+	 *
+	 * @var string top/parent
+	 */
+	public static $windowVerification = 'top';
+
+	/**
 	 * Whether or not CSRF Magic should be allowed to start a new session in order
 	 * to determine the key.
 	 */
@@ -148,12 +155,14 @@ class Csrf
 	/**
 	 * Rewrites <form> on the fly to add CSRF tokens to them. This can also
 	 * inject our JavaScript library.
+	 *
+	 * @param mixed $buffer
 	 */
 	public static function obHandler($buffer)
 	{
 		if (!static::$isHtml) {
 			// not HTML until proven otherwise
-			if (stripos($buffer, '<html') !== false) {
+			if (false !== stripos($buffer, '<html')) {
 				static::$isHtml = true;
 			} else {
 				// Customized to take the partial HTML with form
@@ -165,7 +174,8 @@ class Csrf
 				foreach ($headers as $header) {
 					if (static::$isHtml) {
 						break;
-					} elseif (stripos('Content-type', $header) !== false && stripos('/html', $header) === false) {
+					}
+					if (false !== stripos('Content-type', $header) && false === stripos('/html', $header)) {
 						static::$isHtml = false;
 					}
 				}
@@ -181,7 +191,7 @@ class Csrf
 		$input = "<input type='hidden' name='" . static::$inputName . "' value=\"$tokens\"$endSlash>";
 		$buffer = preg_replace('#(<form[^>]*method\s*=\s*["\']post["\'][^>]*>)#i', '$1' . $input, $buffer);
 		if (static::$frameBreaker && !static::$isPartial) {
-			$buffer = preg_replace('/<\/head>/', '<script type="text/javascript" nonce="' . static::$cspToken . '">if (top != self && top.location.origin + top.location.pathname != self.location.origin + self.location.pathname) {top.location.href = self.location.href;}</script></head>', $buffer, $count);
+			$buffer = preg_replace('/<\/head>/', '<script type="text/javascript" nonce="' . static::$cspToken . '">if (' . static::$windowVerification . ' != self && ' . static::$windowVerification . '.location.origin + ' . static::$windowVerification . '.location.pathname != self.location.origin + self.location.pathname) {' . static::$windowVerification . '.location.href = self.location.href;}</script></head>', $buffer, $count);
 		}
 		if (($js = static::$rewriteJs) && !static::$isPartial) {
 			$buffer = preg_replace(
@@ -208,7 +218,7 @@ class Csrf
 	 */
 	public static function check($fatal = true)
 	{
-		if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+		if ('POST' !== $_SERVER['REQUEST_METHOD']) {
 			return true;
 		}
 		static::start();
@@ -227,10 +237,10 @@ class Csrf
 			$ok = true;
 		} while (false);
 		if ($fatal && !$ok) {
-			if (trim($tokens, 'A..Za..z0..9:;,') !== '') {
+			if ('' !== trim($tokens, 'A..Za..z0..9:;,')) {
 				$tokens = 'hidden';
 			}
-			call_user_func(static::$callback, $tokens);
+			\call_user_func(static::$callback, $tokens);
 		}
 		return $ok;
 	}
@@ -270,7 +280,7 @@ class Csrf
 		if (!$secret) {
 			return 'invalid';
 		}
-		if (static::$user !== false) {
+		if (false !== static::$user) {
 			return 'user:' . static::hash(static::$user);
 		}
 		if (static::$allowIp) {
@@ -290,7 +300,7 @@ class Csrf
 
 	public static function flattenpost2($level, $key, $data)
 	{
-		if (!is_array($data)) {
+		if (!\is_array($data)) {
 			return [$key => $data];
 		}
 		$ret = [];
@@ -326,10 +336,12 @@ class Csrf
 	/**
 	 * Checks if a composite token is valid. Outward facing code should use this
 	 * instead of csrf_check_token().
+	 *
+	 * @param mixed $tokens
 	 */
 	public static function checkTokens($tokens)
 	{
-		if (is_string($tokens)) {
+		if (\is_string($tokens)) {
 			$tokens = explode(';', $tokens);
 		}
 		foreach ($tokens as $token) {
@@ -349,11 +361,11 @@ class Csrf
 	 */
 	public static function checkToken($token)
 	{
-		if (strpos($token, ':') === false) {
+		if (false === strpos($token, ':')) {
 			return false;
 		}
-		list($type, $value) = explode(':', $token, 2);
-		if (strpos($value, ',') === false) {
+		[$type, $value] = explode(':', $token, 2);
+		if (false === strpos($value, ',')) {
 			return false;
 		}
 		$tokenExplode = explode(',', $token, 2);
@@ -387,7 +399,7 @@ class Csrf
 				if (!static::getSecret()) {
 					return false;
 				}
-				if (static::$user === false) {
+				if (false === static::$user) {
 					return false;
 				}
 				return $value === static::hash(static::$user, $time);
@@ -397,7 +409,7 @@ class Csrf
 				}
 				// do not allow IP-based checks if the username is set, or if
 				// the browser sent cookies
-				if (static::$user !== false) {
+				if (false !== static::$user) {
 					return false;
 				}
 				if (!empty($_COOKIE)) {
@@ -413,14 +425,17 @@ class Csrf
 
 	/**
 	 * Sets a configuration value.
+	 *
+	 * @param mixed $key
+	 * @param mixed $val
 	 */
 	public static function conf($key, $val)
 	{
-		if (!isset(static::$$key)) {
+		if (!isset(static::${$key})) {
 			trigger_error('No such configuration ' . $key, E_USER_WARNING);
 			return;
 		}
-		static::$$key = $val;
+		static::${$key} = $val;
 	}
 
 	/**
@@ -441,7 +456,7 @@ class Csrf
 		if (static::$secret) {
 			return static::$secret;
 		}
-		$file = self::$dirSecret . DIRECTORY_SEPARATOR . self::$fileNameSecret;
+		$file = self::$dirSecret . \DIRECTORY_SEPARATOR . self::$fileNameSecret;
 		$secret = '';
 		if (file_exists($file)) {
 			include $file;
@@ -463,8 +478,8 @@ class Csrf
 	public static function generateSecret()
 	{
 		$r = '';
-		for ($i = 0; $i < 32; $i++) {
-			$r .= chr(mt_rand(0, 255));
+		for ($i = 0; $i < 32; ++$i) {
+			$r .= \chr(mt_rand(0, 255));
 		}
 		$r .= time() . microtime();
 		return sha1($r);
@@ -473,6 +488,9 @@ class Csrf
 	/**
 	 * Generates a hash/expiry double. If time isn't set it will be calculated
 	 * from the current time.
+	 *
+	 * @param mixed      $value
+	 * @param mixed|null $time
 	 */
 	public static function hash($value, $time = null)
 	{

@@ -1,7 +1,6 @@
 [![Latest Stable Version](https://poser.pugx.org/yetiforce/csrf-magic/v/stable)](https://packagist.org/packages/yetiforce/csrf-magic)
 ![release date](https://img.shields.io/github/release-date/YetiForceCompany/csrf-magic)
 ![PHP Version](https://img.shields.io/packagist/php-v/yetiforce/csrf-magic)
-                            [[  csrf-magic  ]]
 
 Add the following line to the top of all web-accessible PHP pages. If you have
 a common file included by everything, put it there.

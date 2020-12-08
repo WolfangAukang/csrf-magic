@@ -49,7 +49,7 @@ class Csrf
 	 * with supported JavaScript libraries in Internet Explorer; see README.txt for
 	 * a list of supported libraries.
 	 */
-	public static $rewriteJs = 'vendor/yetiforce/csrf-magic/src/Csrf.js';
+	public static $rewriteJs = 'vendor/wolfangaukang/csrf-magic/src/Csrf.js';
 
 	/**
 	 * A secret key used when hashing items. Please generate a random string and

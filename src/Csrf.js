@@ -10,26 +10,10 @@
 // a bug in ActiveXObject prevents us from properly testing for it.
 CsrfMagic = function (real) {
 	// try to make it ourselves, if you didn't pass it
-	if (!real) try {
-		real = new XMLHttpRequest;
-	} catch (e) {
-		;
-	}
-	if (!real) try {
-		real = new ActiveXObject('Msxml2.XMLHTTP');
-	} catch (e) {
-		;
-	}
-	if (!real) try {
-		real = new ActiveXObject('Microsoft.XMLHTTP');
-	} catch (e) {
-		;
-	}
-	if (!real) try {
-		real = new ActiveXObject('Msxml2.XMLHTTP.4.0');
-	} catch (e) {
-		;
-	}
+	if (!real) try { real = new XMLHttpRequest; } catch (e) {;}
+	if (!real) try { real = new ActiveXObject('Msxml2.XMLHTTP'); } catch (e) {;}
+	if (!real) try { real = new ActiveXObject('Microsoft.XMLHTTP'); } catch (e) {;}
+	if (!real) try { real = new ActiveXObject('Msxml2.XMLHTTP.4.0'); } catch (e) {;}
 	this.csrf = real;
 	// properties
 	var csrfMagic = this;
@@ -56,11 +40,18 @@ CsrfMagic.prototype = {
 	send: function (data) {
 		if (!this.csrf_isPost) return this.csrf_send(data);
 		delete this.csrf_isPost;
-		if(data instanceof FormData) {
+		if(!this.csrf_contentType) this.csrf_contentType = "";
+		if(data === null){
+			data = new FormData();
+			data.append(csrfMagicName, csrfMagicToken);
+			return this.csrf_send(data);
+		} else if (typeof data == "string" && this.csrf_contentType.toLowerCase().indexOf("application/json") == -1){
+			return this.csrf_send(csrfMagicName + '=' + csrfMagicToken + '&' + data);
+		} else if (data instanceof FormData) {
 			data.append(csrfMagicName, csrfMagicToken);
 			return this.csrf_send(data);
 		} else {
-			return this.csrf_send(csrfMagicName + '=' + csrfMagicToken + '&' + data);
+			return this.csrf_send(data);
 		}
 	},
 	csrf_send: function (data) {
@@ -73,6 +64,9 @@ CsrfMagic.prototype = {
 		if (this.csrf_isPost && header == "Content-length") {
 			this.csrf_purportedLength = value;
 			return;
+		}
+		if (header == "Content-Type"){
+			this.csrf_contentType = value;
 		}
 		return this.csrf_setRequestHeader(header, value);
 	},
@@ -96,9 +90,9 @@ CsrfMagic.prototype._updateProps = function () {
 	this.readyState = this.csrf.readyState;
 	if (this.readyState == 4) {
 		this.responseText = this.csrf.responseText;
-		this.responseXML = this.csrf.responseXML;
-		this.status = this.csrf.status;
-		this.statusText = this.csrf.statusText;
+		this.responseXML  = this.csrf.responseXML;
+		this.status       = this.csrf.status;
+		this.statusText   = this.csrf.statusText;
 	}
 }
 CsrfMagic.process = function (base) {
@@ -204,4 +198,31 @@ if (window.XMLHttpRequest && window.XMLHttpRequest.prototype && '\v' != 'v') {
 			return new CsrfMagic(dojo.csrf__xhrObj());
 		}
 	}
+}
+var retryCSRFCount = 1;
+function retryCSRF(xhr, self)
+{
+    if(retryCSRFCount >= 5){
+        retryCSRFCount = 0;
+        return true;
+    }
+        
+    var obj = $('<div/>').html(xhr.responseText);
+    var token = obj.find('input[name=\"__csrf_magic\"]').val();
+    if(token)
+    {
+        $('input[name=\"__csrf_magic\"]').val(token);
+        csrfMagicToken = token;
+        if(self.headers && self.headers['CSRF-TOKEN']){
+            self.headers['CSRF-TOKEN'] = token;
+        }
+        $.ajax(self);
+        retryCSRFCount++;
+        return true;
+    }
+    else
+    {
+        retryCSRFCount = 0;
+        return false;
+    }
 }

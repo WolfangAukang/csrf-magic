@@ -1,12 +1,12 @@
 {
-  "name": "wolfangaukang/csrf-magic",
+  "name": "simplerisk/csrf-magic",
   "description": "Cross Site Request Forgery security library",
   "keywords": [
 	"CSRF",
 	"security",
 	"php"
   ],
-  "homepage": "https://github.com/wolfangaukang/csrf-magic",
+  "homepage": "https://github.com/simplerisk/csrf-magic",
   "type": "library",
   "license": "BSD-2-Clause",
   "authors": [
@@ -21,9 +21,9 @@
 	  "homepage": "https://yetiforce.com/"
 	},
 	{
-	  "name": "P.",
-	  "email": "liquid.query960@4wrd.cc",
-	  "homepage": "https://github.com/wolfangaukang"
+	  "name": "SimpleRisk",
+	  "email": "support@simplerisk.com",
+	  "homepage": "https://simplerisk.com"
 	}
   ],
   "require": {

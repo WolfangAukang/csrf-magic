@@ -12,7 +12,7 @@ namespace CsrfMagic;
  * in every page), and forget about it! (There are, of course, configuration
  * options for advanced users).
  *
- * This library is PHP4 and PHP5 compatible.
+ * This library is PHP{4,5,7} compatible.
  */
 class Csrf
 {
@@ -49,7 +49,7 @@ class Csrf
 	 * with supported JavaScript libraries in Internet Explorer; see README.txt for
 	 * a list of supported libraries.
 	 */
-	public static $rewriteJs = 'vendor/yetiforce/csrf-magic/src/Csrf.js';
+	public static $rewriteJs = 'vendor/wolfangaukang/csrf-magic/src/Csrf.js';
 
 	/**
 	 * A secret key used when hashing items. Please generate a random string and
@@ -502,10 +502,6 @@ class Csrf
 
 	public static function init()
 	{
-		// Load user configuration
-		if (class_exists('\CSRFConfig')) {
-			\CSRFConfig::startup();
-		}
 		// Initialize our handler
 		if (static::$rewrite) {
 			ob_start(['self', 'obHandler']);

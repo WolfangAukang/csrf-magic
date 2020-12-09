@@ -1,11 +1,20 @@
-[![Latest Stable Version](https://poser.pugx.org/yetiforce/csrf-magic/v/stable)](https://packagist.org/packages/yetiforce/csrf-magic)
-![release date](https://img.shields.io/github/release-date/YetiForceCompany/csrf-magic)
-![PHP Version](https://img.shields.io/packagist/php-v/yetiforce/csrf-magic)
+This is the csrf-magic library for PHP, originally made by
+[ezyang](https://github.com/ezyang/csrf-magic) but adapted to an OO strategy by
+[YetiForce Company](https://github.com/YetiForceCompany/csrf-magic).
+The only difference is the addition of the `retryCSRF` method used by SimpleRisk
+to the `Csrf.js` file (which is not mandatory to use), plus some path updates.
+
+This can be helpful for anyone using Composer to load third-party libraries.
 
 Add the following line to the top of all web-accessible PHP pages. If you have
 a common file included by everything, put it there.
 
-    include_once '/path/to/csrf-magic.php';
+    \CsrfMagic\Csrf::init(); 
+
+Finally, if you need to edit any of the settings, they are now static attributes
+(previously global variables), so you can simply run:
+
+    \CsrfMagic\Csrf::$staticAttributeName;
 
 Do it, test it, then forget about it. csrf-magic is protecting you if nothing
 bad happens. Read on if you run into problems.
@@ -51,6 +60,12 @@ bad happens. Read on if you run into problems.
 
 
 2.  AJAX
+
+**NOTE:** The instructions below are for ezyang's repository. As this is
+OO, you can simply edit the static attributes, as indicated at the beginning
+of this README, then initialize the class by running the `init()` static
+method. Also, you might need to edit the `$rewriteJs` attribute with the
+full path to the js file to be used.
 
 csrf-magic has the ability to dynamically rewrite AJAX requests which use
 XMLHttpRequest.  However, due to the invasiveness of this procedure, it is
@@ -101,6 +116,9 @@ querystring, and prepends the CSRF token to the value.
 
 
 3.  CONFIGURE
+
+**NOTE:** The instructions below are for ezyang's repository. As this library is now OO related, you can
+override the methods by creating a subclass extending `\CsrfMagic\Csrf`.
 
 csrf-magic has some configuration options that you can set inside the
 csrf_startup() function. They are described in csrf-magic.php, and you can

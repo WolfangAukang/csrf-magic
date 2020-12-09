@@ -502,10 +502,6 @@ class Csrf
 
 	public static function init()
 	{
-		// Load user configuration
-		if (class_exists('\CSRFConfig')) {
-			\CSRFConfig::startup();
-		}
 		// Initialize our handler
 		if (static::$rewrite) {
 			ob_start(['self', 'obHandler']);

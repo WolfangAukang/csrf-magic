@@ -12,7 +12,7 @@ namespace CsrfMagic;
  * in every page), and forget about it! (There are, of course, configuration
  * options for advanced users).
  *
- * This library is PHP4 and PHP5 compatible.
+ * This library is PHP{4,5,7} compatible.
  */
 class Csrf
 {

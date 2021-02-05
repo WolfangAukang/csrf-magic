@@ -258,7 +258,7 @@ class Csrf
 		// the cookies "stick"
 		$secret = static::getSecret();
 		if (!$hasCookies && $secret) {
-			$ip = ';ip:' . static::hash($_SERVER['IP_ADDRESS']);
+			$ip = ';ip:' . static::hash($_SERVER['REMOTE_ADDR']);
 		} else {
 			$ip = '';
 		}
